@@ -8,11 +8,14 @@ import { UsersModule } from './users/users.module';
 import { RabbitMQModule } from './rabbit-mq.module';
 
 
+
+
 @Module({
   imports: [
    
     UsersModule,
-    RabbitMQModule
+    RabbitMQModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

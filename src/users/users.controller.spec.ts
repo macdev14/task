@@ -1,21 +1,119 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserController } from './users.controller';
 import { UserService } from './users.service';
+import { UsersModule } from './users.module';
+import { UserController } from './users.controller';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HttpModule } from '@nestjs/axios';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
+import { RabbitMQModule } from '../../src/rabbit-mq.module';
+import { User, UserSchema } from './schemas/user.schema';
+import { Model } from 'mongoose';
+import { RabbitMQService } from '../../src/rabbit-mq.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { message } from './users.service.spec';
+import { userResp } from './user';
 
-describe('UsersController', () => {
+const mockUserModel: Partial<Model<User>> = {
+  find: jest.fn(),
+  findById: jest.fn(),
+  create: jest.fn(),
+  updateOne: jest.fn(),
+  deleteOne: jest.fn(),
+};
+describe('UsersController test', () => {
   let controller: UserController;
-  let service: UserService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [UserController],
-      providers: [UserService],
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      imports: [
+        UsersModule,
+        MailerModule.forRoot({
+        transport: {
+          host: '127.0.0.1', //host smtp
+          secure: false, 
+          port: 1025,
+          ignoreTLS: true,
+        },
+        defaults: { 
+          from: '"',
+        },
+      }),
+      MongooseModule.forRoot('mongodb://localhost:27017/taskapi'),
+      MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+      RabbitMQModule,
+      HttpModule],
+      providers:
+       [ UserService,
+        {
+          provide: getModelToken(User.name),
+          useValue: mockUserModel,
+        },
+        {
+          provide: RabbitMQService,
+          useValue: {
+            send: jest.fn()
+          },
+        },
+      ]
+      
+      ,
     }).compile();
 
-    controller = module.get<UserController>(UserController);
+
+    controller = moduleRef.get<UserController>(UserController);
+    
+    
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('createUser controller test', () => {
+    it('should create a user', async () => {
+      const object: CreateUserDto = {
+        
+      first_name: 'John',
+      last_name: 'Doe',
+      email: 'john@doe.com',
+     
+      }
+      const res = {} as message | Promise<message>
+      jest.spyOn(controller, 'createUser').mockResolvedValue(res);
+      const create = await controller.createUser(object);
+      expect(create).toBe(res);
+
+    });
   });
+
+  describe('get User By Id', () => {
+    it('should get user by id', async () => {
+      const res = {} as Promise<userResp> ;
+      jest.spyOn(controller, 'getUserById').mockResolvedValue(res);
+      const userByID = await controller.getUserById(1);
+      expect(userByID).toBe(res);
+  
+
+    });
+  });
+
+  describe('get User Avatar By Id', () => {
+    it('should get user by id', async () => {
+      const res = {} as message | Promise<message> ;
+      jest.spyOn(controller, 'getAvatar').mockResolvedValue(res);
+      const userByID = await controller.getAvatar(1);
+      expect(userByID).toBe(res);
+  
+
+    });
+  });
+
+  describe('delete User Avatar By Id', () => {
+    it('should get user by id', async () => {
+      const res = {} as message | Promise<message> ;
+      jest.spyOn(controller, 'deleteAvatar').mockResolvedValue(res);
+      const deleteUserByID = await controller.deleteAvatar(1);
+      expect(deleteUserByID).toBe(res);
+  
+
+    });
+  });
+
+  
 });

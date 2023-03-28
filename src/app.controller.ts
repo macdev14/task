@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { RabbitMQService } from './rabbit-mq.service';
+import { message } from './users/users.service.spec';
 
 @Controller()
 export class AppController {
@@ -12,10 +13,10 @@ export class AppController {
   // }
 
   @Get()
-  async getHello() {
-    this.rabbitMQService.send('rabbit-mq-producer', {
+  async getHello() : Promise<message> {
+    await this.rabbitMQService.send('rabbit-mq-producer', {
       message: this.appService.getHello(),
     });
-    return 'Message sent to the queue!';
+    return { message: 'Message sent to the queue!'};
   }
 }

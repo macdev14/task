@@ -4,8 +4,11 @@ import { UserController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { HttpModule } from '@nestjs/axios';
-import { RabbitMQModule } from 'src/rabbit-mq.module';
+
 import { MailerModule } from '@nestjs-modules/mailer';
+import { RabbitMQModule } from '../rabbit-mq.module';
+
+
 
 @Module({
   imports: [

@@ -4,7 +4,7 @@ export class CreateUserDto {
     last_name: string;
     email: string;
     avatar?: Buffer;
-    hash: string;
+    hash?: string;
 
 
 }
