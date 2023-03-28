@@ -12,6 +12,7 @@ import { RabbitMQService } from '../../src/rabbit-mq.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { message } from './users.service.spec';
 import { userResp } from './user';
+import { ConfigModule } from '@nestjs/config';
 
 const mockUserModel: Partial<Model<User>> = {
   find: jest.fn(),
@@ -26,6 +27,7 @@ describe('UsersController test', () => {
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [
+        ConfigModule.forRoot(),
         UsersModule,
         MailerModule.forRoot({
           transport: {

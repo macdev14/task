@@ -5,14 +5,9 @@ import axios from 'axios';
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { HttpService } from '@nestjs/axios';
-import { createWriteStream, existsSync, unlink, writeFile } from 'fs';
+import { createWriteStream, existsSync, unlink, writeFile, writeFileSync, open } from 'fs';
 import * as bcrypt from 'bcrypt';
 import { userResp } from './user';
-
-
-
-
-
 
 @Injectable()
 export class UserService {
@@ -76,13 +71,10 @@ export class UserService {
     const base = userObject.avatar.toString('base64');
     userObject.hash = await bcrypt.hash(userObject.avatar, 2 );
     const imgName = `./images/${userObject.hash}.jpeg`;
+
+    
     
    
-    await writeFile(imgName, userObject.avatar,
-      () => ('')
-    );
-    
-    console.log('Image file stored in filesystem ')
      
   
 
@@ -92,10 +84,11 @@ export class UserService {
         const avatarObject = await this.userModel.findOne({avatar: userObject.avatar }) ;
         const isMatch = await bcrypt.compare(userObject.avatar, avatarObject.hash);
         const requestResponse = (isMatch) ? (avatarObject.avatar.toString('base64')) : ('Hash does not match')
+        writeFile(imgName, userObject.avatar, ()=>(console.log('Trying to create image...')))
         return { message : requestResponse};
      }     
      else{ 
-
+      writeFile(imgName, userObject.avatar, ()=>(console.log('Trying to create image...')))
       await this.userModel.create(
         userObject
       );
@@ -117,3 +110,5 @@ export class UserService {
   
 
 }
+
+
