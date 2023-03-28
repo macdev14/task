@@ -28,17 +28,17 @@ describe('UsersController test', () => {
       imports: [
         UsersModule,
         MailerModule.forRoot({
-        transport: {
-          host: '127.0.0.1', //host smtp
-          secure: false, 
-          port: 1025,
-          ignoreTLS: true,
-        },
-        defaults: { 
-          from: '"',
-        },
+          transport: {
+            host:  process.env.SMTP_HOST ??'127.0.0.1', //host smtp
+            secure: process.env.SMTP_SECURE ?? false, 
+            port: process.env.SMTP_PORT ?? 1025,
+            ignoreTLS: process.env.SMTP_IGNORE_TLS ?? true,
+          },
+          defaults: { 
+            from: '"',
+          },
       }),
-      MongooseModule.forRoot('mongodb://localhost:27017/taskapi'),
+      MongooseModule.forRoot(`mongodb://${ process.env.MONGODB_HOST ?? 'localhost' }:${ process.env.MONGODB_PORT ?? 27017 }/${process.env.MONGODB_DB ?? 'taskapi'}`),
       MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
       RabbitMQModule,
       HttpModule],
